@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.Types;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -8,6 +9,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web.Script.Serialization;
 
 namespace RestFul
 {
@@ -228,6 +230,8 @@ namespace RestFul
         /// <returns></returns>
         private static string StringFormat(string str, Type type)
         {
+            str = str.Replace("\"","'");
+            str = str.Replace("\\", "");
             if (type == typeof(string))
             {
                 str = String2Json(str);
@@ -235,6 +239,11 @@ namespace RestFul
             }
             else if (type == typeof(DateTime))
             {
+                str = "\"" + str + "\"";
+            }
+            else if (type == typeof(MySqlDateTime))
+            {
+                str = str.Replace("/", "-");
                 str = "\"" + str + "\"";
             }
             else if (type == typeof(bool))
@@ -464,7 +473,22 @@ namespace RestFul
             Json.Append("]}");
             return Json.ToString();
         }
-
+        public static string DataTableToJsonWithJavaScriptSerializer(DataTable table)
+        {
+            JavaScriptSerializer jsSerializer = new JavaScriptSerializer();
+            List<Dictionary<string, object>> parentRow = new List<Dictionary<string, object>>();
+            Dictionary<string, object> childRow;
+            foreach (DataRow row in table.Rows)
+            {
+                childRow = new Dictionary<string, object>();
+                foreach (DataColumn col in table.Columns)
+                {
+                    childRow.Add(col.ColumnName, row[col]);
+                }
+                parentRow.Add(childRow);
+            }
+            return jsSerializer.Serialize(parentRow);
+        }
         #endregion
 
         #region DataReader转换为Json
@@ -579,5 +603,7 @@ namespace RestFul
             return sBuilder.ToString();
         }
         #endregion
+
+
     }
 }

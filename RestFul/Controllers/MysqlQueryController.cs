@@ -16,19 +16,6 @@ namespace RestFul.Controllers
     public class MysqlQueryController : ApiController
     {
         [AllowAnonymous]
-        public HttpResponseMessage Get()
-        {
-            var content = new
-            {
-                code = "success",
-                message = "哈哈哈"
-            };
-            string json = JsonConvert.SerializeObject(content);
-            HttpResponseMessage result = new HttpResponseMessage { Content = new StringContent(json, Encoding.GetEncoding("UTF-8"), "application/json") };
-            return result;
-        }
-
-        [AllowAnonymous]
         public HttpResponseMessage Get(string table, int pageSize, int page)
         {
             try
